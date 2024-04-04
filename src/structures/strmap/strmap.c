@@ -18,8 +18,9 @@ StrMap* map_new() {
 void map_free(StrMap* map) {
     for (int i = 0; i < map->tables_count; i++) {
         for (int j = 0; j < 0xFFFF; j++) {
-            if (map->tables[i]->key != NULL) free(map->tables[i]->key);
+            if (map->tables[i][j].key != NULL) free(map->tables[i][j].key);
         }
+
         free(map->tables[i]);
     }
 
@@ -56,7 +57,7 @@ void map_set(StrMap* map, const char * key, void* value) {
         StrMapEntry* table = map->tables[i];
 
         if (table[idx].key == NULL) {
-            char* new_key = malloc(strlen(key));
+            char* new_key = malloc(strlen(key) + 1);
             table[idx].key = strcpy(new_key, key);
             table[idx].value = value;
             return;
@@ -69,7 +70,7 @@ void map_set(StrMap* map, const char * key, void* value) {
     // In this point, no available table space was found
     // We must then allocate a new table
     StrMapEntry* table = add_table(map);
-    char* new_key = malloc(strlen(key));
+    char* new_key = malloc(strlen(key) + 1);
     table[idx].key = strcpy(new_key, key);
     table[idx].value = value;
 }
@@ -92,7 +93,7 @@ uint16_t hash(const char * key) {
     uint16_t idx = 0;
 
     for (int i = 0; i < strlen(key); i++) {
-        idx ^= (key[i] << (i % 2));
+        idx ^= (key[i] << ((i % 2)*8));
     }
 
     return idx;
