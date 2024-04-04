@@ -1,35 +1,22 @@
 #include "./strmap.h"
+#include "../memory.h"
 
 #include <inttypes.h>
 #include <string.h>
-#include <stdlib.h>
 
-StrMapEntry* add_table(StrMap* map);
-uint16_t hash(const char * key);
+StrMapEntry* __add_table(StrMap* map);
+uint16_t __hash(const char * key);
 
 StrMap* map_new() {
-    StrMap* map = (StrMap*) malloc(sizeof(StrMap));
+    StrMap* map = (StrMap*) smalloc(sizeof(StrMap));
     map->tables = NULL;
     map->tables_count = 0;
 
     return map;
 }
 
-void map_free(StrMap* map) {
-    for (int i = 0; i < map->tables_count; i++) {
-        for (int j = 0; j < 0xFFFF; j++) {
-            if (map->tables[i][j].key != NULL) free(map->tables[i][j].key);
-        }
-
-        free(map->tables[i]);
-    }
-
-    free(map->tables);
-    free(map);
-}
-
 void* map_get(StrMap* map, const char * key) {
-    uint16_t idx = hash(key);
+    uint16_t idx = __hash(key);
 
     for (int i = 0; i < map->tables_count; i++) {
         StrMapEntry* table = map->tables[i];
@@ -51,13 +38,13 @@ void* map_get(StrMap* map, const char * key) {
 }
 
 void map_set(StrMap* map, const char * key, void* value) {
-    uint16_t idx = hash(key);
+    uint16_t idx = __hash(key);
 
     for (int i = 0; i < map->tables_count; i++) {
         StrMapEntry* table = map->tables[i];
 
         if (table[idx].key == NULL) {
-            char* new_key = malloc(strlen(key) + 1);
+            char* new_key = smalloc(strlen(key) + 1);
             table[idx].key = strcpy(new_key, key);
             table[idx].value = value;
             return;
@@ -69,27 +56,27 @@ void map_set(StrMap* map, const char * key, void* value) {
 
     // In this point, no available table space was found
     // We must then allocate a new table
-    StrMapEntry* table = add_table(map);
-    char* new_key = malloc(strlen(key) + 1);
+    StrMapEntry* table = __add_table(map);
+    char* new_key = smalloc(strlen(key) + 1);
     table[idx].key = strcpy(new_key, key);
     table[idx].value = value;
 }
 
-StrMapEntry* add_table(StrMap* map) {
+StrMapEntry* __add_table(StrMap* map) {
     if (map->tables == NULL) {
-        map->tables = (StrMapEntry**) malloc(sizeof(StrMapEntry*));
+        map->tables = (StrMapEntry**) smalloc(sizeof(StrMapEntry*));
     } else {
-        map->tables = (StrMapEntry**) realloc(map->tables, map->tables_count * sizeof(StrMapEntry*));
+        map->tables = (StrMapEntry**) srealloc(map->tables, (map->tables_count + 1) * sizeof(StrMapEntry*));
     }
 
-    StrMapEntry* table = (StrMapEntry*) calloc(0xFFFF, sizeof(StrMapEntry));
+    StrMapEntry* table = (StrMapEntry*) scalloc(0xFFFF, sizeof(StrMapEntry));
     map->tables[map->tables_count] = table;
     map->tables_count++;
 
     return table;
 }
 
-uint16_t hash(const char * key) {
+uint16_t __hash(const char * key) {
     uint16_t idx = 0;
 
     for (int i = 0; i < strlen(key); i++) {
