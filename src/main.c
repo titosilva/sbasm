@@ -1,24 +1,37 @@
-#include "./structures/strmap/strmap.h"
+#include "./structures/str/str.h"
 #include "./structures/memory.h"
 
 #include <stdio.h>
 
+void match(str x, str pattern);
+
 int main() {
     init_alloc_table();
-    StrMap* map = map_new();
 
-    int x = 2;
-    map_set(map, "abacaxi2", &x);
+    str pattern = "^[[:blank:]]*\\([[:alnum:]_]\\{1,\\}:\\)*[[:blank:]]*\\([[:alnum:]]\\{1,\\}\\)*[[:blank:]]*\\([[:alnum:]]\\{1,\\}\\)*[[:blank:]]*$";
 
-    int* r = (int*) map_get(map, "abacaxi2");
-    printf("r: %d\n", *r);
+    str x = "\tlabel: \t\t\tAND N1";
+    match(x, pattern);
 
-    int y = 3;
-    map_set(map, "acabaxi2", &y);
+    x = "\t\t   AND\t\t\t N1";
+    match(x, pattern);
 
-    r = (int*) map_get(map, "acabaxi2");
-    printf("r: %d\n", *r);
+    x = "\t\t   STOP             ";
+    match(x, pattern);
+
+    x = "\t\t \t  N1: const\t\t\t 0\t\t    ";
+    match(x, pattern);
 
     end_alloc_table();
     return 0;
+}
+
+void match(str x, str pattern) {
+    int ctr = 0;
+    str* matches = str_posix_regex_match(x, pattern, &ctr);
+
+    printf("%s with %d matches\n", x, ctr);
+    for (int i = 1; i < ctr; i++) {
+        printf("%s\n", matches[i]);
+    }
 }
