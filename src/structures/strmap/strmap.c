@@ -1,5 +1,6 @@
 #include "./strmap.h"
 #include "../memory.h"
+#include "../str/str.h"
 
 #include <inttypes.h>
 #include <string.h>
@@ -44,8 +45,7 @@ void map_set(StrMap* map, const char * key, void* value) {
         StrMapEntry* table = map->tables[i];
 
         if (table[idx].key == NULL) {
-            char* new_key = smalloc(strlen(key) + 1);
-            table[idx].key = strcpy(new_key, key);
+            table[idx].key = str_clone(key);
             table[idx].value = value;
             return;
         } else if (strcmp(table[idx].key, key) == 0) {
@@ -57,8 +57,7 @@ void map_set(StrMap* map, const char * key, void* value) {
     // In this point, no available table space was found
     // We must then allocate a new table
     StrMapEntry* table = __add_table(map);
-    char* new_key = smalloc(strlen(key) + 1);
-    table[idx].key = strcpy(new_key, key);
+    table[idx].key = str_clone(key);
     table[idx].value = value;
 }
 
