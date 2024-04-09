@@ -5,22 +5,23 @@
 
 void match(str x, str pattern);
 
-int main() {
+int main(int argc, char *argv[]) {
     init_alloc_table();
 
-    str pattern = "^[[:blank:]]*\\([[:alnum:]_]\\{1,\\}:\\)*[[:blank:]]*\\([[:alnum:]]\\{1,\\}\\)*[[:blank:]]*\\([[:alnum:]]\\{1,\\}\\)*[[:blank:]]*$";
+    printf("argc: %d\n", argc);
+    // str pattern = "^[[:blank:]]*\\([[:alnum:]_]\\{1,\\}:\\)*[[:blank:]]*\\([[:alnum:]]\\{1,\\}\\)*[[:blank:]]*\\([[:alnum:]]\\{1,\\}\\)*[[:blank:]]*$";
 
-    str x = "\tlabel: \t\t\tAND N1";
-    match(x, pattern);
+    // str x = "\tlabel: \t\t\tAND N1";
+    // match(x, pattern);
 
-    x = "\t\t   AND\t\t\t N1";
-    match(x, pattern);
+    // x = "\t\t   AND\t\t\t N1";
+    // match(x, pattern);
 
-    x = "\t\t   STOP             ";
-    match(x, pattern);
+    // x = "\t\t   STOP             ";
+    // match(x, pattern);
 
-    x = "\t\t \t  N1: const\t\t\t 0\t\t    ";
-    match(x, pattern);
+    // x = "\t\t \t  N1: const\t\t\t 0\t\t    ";
+    // match(x, pattern);
 
     end_alloc_table();
     return 0;
